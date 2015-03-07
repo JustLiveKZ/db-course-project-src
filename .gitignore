@@ -1,0 +1,8 @@
+.idea
+venv
+*~
+*.pyc
+*.bak
+settings_ubuntu.py
+settings_windows.py
+db.sqlite3
