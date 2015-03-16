@@ -19,11 +19,6 @@ class MeasurableModelMixin(models.Model):
         abstract = True
 
 
-class NamedMeasurableModelMixin(NamedModelMixin, MeasurableModelMixin):
-    class Meta:
-        abstract = True
-
-
 class PricedModelMixin(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
 
@@ -34,11 +29,6 @@ class PricedModelMixin(models.Model):
 class CountableModelMixin(models.Model):
     quantity = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
 
-    class Meta:
-        abstract = True
-
-
-class PricedCountableModelMixin(models.Model):
     class Meta:
         abstract = True
 

@@ -1,19 +1,21 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Sum
+from django.utils.decorators import classonlymethod
 
-from factory.abstract_models import NamedModelMixin, NamedMeasurableModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, PricedCountableModelMixin
-from factory.constants import TRANSACTION_TYPE_CHOICES
+from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, MeasurableModelMixin, PricedModelMixin
+from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME
 
 
 class Measure(NamedModelMixin):
     pass
 
 
-class Material(NamedMeasurableModelMixin):
+class Material(NamedModelMixin, MeasurableModelMixin, CountableModelMixin, PricedModelMixin):
     pass
 
 
-class Product(NamedMeasurableModelMixin):
+class Product(NamedModelMixin, MeasurableModelMixin, CountableModelMixin, PricedModelMixin):
     materials = models.ManyToManyField(Material, related_name='products', through='ComponentOfProduct')
 
 
@@ -23,20 +25,6 @@ class ComponentOfProduct(CountableModelMixin):
 
     def __unicode__(self):
         return self.material
-
-
-class MaterialPrice(PricedCountableModelMixin):
-    material = models.ForeignKey(Material)
-
-    def __unicode__(self):
-        return self.material
-
-
-class ProductPrice(PricedCountableModelMixin):
-    product = models.ForeignKey(Product)
-
-    def __unicode__(self):
-        return self.product
 
 
 class JobTitle(NamedModelMixin):
@@ -60,6 +48,11 @@ class Transaction(DateTimeModelMixin):
 
     def __unicode__(self):
         return '%s, %s, %s' % (self.amount, self.transaction_type, self.datetime)
+
+    @classonlymethod
+    def get_balance(cls):
+        return (cls.objects.filter(transaction_type__type=INCOME).aggregate(Sum('amount')).get('amount__sum') or 0.00) - \
+               (cls.objects.filter(transaction_type__type=OUTCOME).aggregate(Sum('amount')).get('amount__sum') or 0.00)
 
 
 class Purchase(TradeDealModelMixin):

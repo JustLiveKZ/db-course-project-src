@@ -65,17 +65,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100)),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='MaterialPrice',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('material', models.ForeignKey(to='factory.Material')),
+                ('price', models.DecimalField(max_digits=10, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
+                ('quantity', models.DecimalField(max_digits=10, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
             ],
             options={
                 'abstract': False,
@@ -98,19 +89,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100)),
+                ('price', models.DecimalField(max_digits=10, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
+                ('quantity', models.DecimalField(max_digits=10, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('materials', models.ManyToManyField(related_name='products', through='factory.ComponentOfProduct', to='factory.Material')),
                 ('measure', models.ForeignKey(to='factory.Measure')),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='ProductPrice',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('product', models.ForeignKey(to='factory.Product')),
             ],
             options={
                 'abstract': False,
