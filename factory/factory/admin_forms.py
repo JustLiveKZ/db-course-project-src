@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import F
+
 from factory.constants import Messages
 from factory.models import Purchase, Transaction, Sale
 
@@ -25,13 +25,6 @@ class SaleForm(forms.ModelForm):
         if product.quantity < quantity:
             raise ValidationError(Messages.NOT_ENOUGH_PRODUCTS)
         return quantity
-
-    def save(self, commit=True):
-        super(SaleForm, self).save(commit)
-        Transaction.objects.create_sale_transaction(amount=self.instance.quantity * self.instance.product.price,
-                                                    content_object=self.instance)
-        self.instance.product = F('quantity') - self.instance.quantity
-        self.instance.product.save()
 
     class Meta:
         model = Sale

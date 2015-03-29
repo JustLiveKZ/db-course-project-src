@@ -1,4 +1,5 @@
 from django.db import models
+
 from factory.constants import TransactionTypes
 
 
