@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
@@ -28,7 +29,7 @@ class ComponentOfProduct(CountableModelMixin):
     product = models.ForeignKey(Product)
 
     def __unicode__(self):
-        return self.material
+        return u'%s' % self.material
 
 
 class JobTitle(NamedModelMixin):
@@ -57,26 +58,26 @@ class Transaction(DateTimeModelMixin):
     objects = TransactionManager()
 
     def __unicode__(self):
-        return '%s, %s, %s' % (self.amount, self.transaction_type, self.datetime)
+        return u'%s, %s, %s' % (self.amount, self.transaction_type, self.datetime)
 
     @classonlymethod
     def get_balance(cls):
-        return (cls.objects.filter(transaction_type__type=INCOME).aggregate(Sum('amount')).get('amount__sum') or 0.00) - \
-               (cls.objects.filter(transaction_type__type=OUTCOME).aggregate(Sum('amount')).get('amount__sum') or 0.00)
+        return (cls.objects.filter(transaction_type__type=INCOME).aggregate(Sum('amount')).get('amount__sum') or Decimal(0)) - \
+               (cls.objects.filter(transaction_type__type=OUTCOME).aggregate(Sum('amount')).get('amount__sum') or Decimal(0))
 
 
 class Purchase(TradeDealModelMixin):
     material = models.ForeignKey(Material)
 
     def __unicode__(self):
-        return u'%s' % self.material
+        return u'%s, %s %s, %s' % (self.material, self.quantity, self.material.measure, self.datetime)
 
 
 class Sale(TradeDealModelMixin):
     product = models.ForeignKey(Product)
 
     def __unicode__(self):
-        return self.product
+        return u'%s' % self.product
 
 
 class Manufacture(CountableModelMixin, DateTimeModelMixin):

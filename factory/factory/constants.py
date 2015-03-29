@@ -1,3 +1,4 @@
+from django.utils.decorators import classonlymethod
 from django.utils.translation import ugettext as _
 
 INCOME = 1
@@ -28,52 +29,53 @@ class TransactionTypes:
     _investments_transaction_type = None
     _investments_transaction_type_pk = 5
 
-    def _load_model(self):
+    @classonlymethod
+    def _load_model(cls):
         from factory.models import TransactionType
 
-        self.model = TransactionType
+        cls.model = TransactionType
 
-    def _get_transaction_type(self, transaction_type_pk):
-        if not self.model:
-            self._load_model()
-        return self.model.objects.get(pk=transaction_type_pk)
+    @classonlymethod
+    def _get_transaction_type(cls, transaction_type_pk):
+        if not cls.model:
+            cls._load_model()
+        return cls.model.objects.get(pk=transaction_type_pk)
 
-    def _get_purchase_transaction_type(self):
-        if self._purchase_transaction_type:
-            return self._purchase_transaction_type
-        self._purchase_transaction_type = self._get_transaction_type(
-            self._purchase_transaction_type_pk)
-        return self._purchase_transaction_type
+    @classonlymethod
+    def get_purchase_transaction_type(cls):
+        if cls._purchase_transaction_type:
+            return cls._purchase_transaction_type
+        cls._purchase_transaction_type = cls._get_transaction_type(
+            cls._purchase_transaction_type_pk)
+        return cls._purchase_transaction_type
 
-    def _get_sale_transaction_type(self):
-        if self._sale_transaction_type:
-            return self._sale_transaction_type
-        self._sale_transaction_type = self._get_transaction_type(self._sale_transaction_type_pk)
-        return self._sale_transaction_type
+    @classonlymethod
+    def get_sale_transaction_type(cls):
+        if cls._sale_transaction_type:
+            return cls._sale_transaction_type
+        cls._sale_transaction_type = cls._get_transaction_type(cls._sale_transaction_type_pk)
+        return cls._sale_transaction_type
 
-    def _get_salary_transaction_type(self):
-        if self._salary_transaction_type:
-            return self._salary_transaction_type
-        self._salary_transaction_type = self._get_transaction_type(self._salary_transaction_type_pk)
-        return self._salary_transaction_type
+    @classonlymethod
+    def get_salary_transaction_type(cls):
+        if cls._salary_transaction_type:
+            return cls._salary_transaction_type
+        cls._salary_transaction_type = cls._get_transaction_type(cls._salary_transaction_type_pk)
+        return cls._salary_transaction_type
 
-    def _get_taxes_transaction_type(self):
-        if self._taxes_transaction_type:
-            return self._taxes_transaction_type
-        self._taxes_transaction_type = self._get_transaction_type(self._taxes_transaction_type_pk)
-        return self._taxes_transaction_type
+    @classonlymethod
+    def get_taxes_transaction_type(cls):
+        if cls._taxes_transaction_type:
+            return cls._taxes_transaction_type
+        cls._taxes_transaction_type = cls._get_transaction_type(cls._taxes_transaction_type_pk)
+        return cls._taxes_transaction_type
 
-    def _get_investments_transaction_type(self):
-        if self._investments_transaction_type:
-            return self._investments_transaction_type
-        self._investments_transaction_type = self._get_transaction_type(self._investments_transaction_type_pk)
-        return self._investments_transaction_type
-
-    PURCHASE = property(_get_purchase_transaction_type)
-    SALE = property(_get_sale_transaction_type)
-    SALARY = property(_get_salary_transaction_type)
-    TAXES = property(_get_taxes_transaction_type)
-    INVESTMENTS = property(_get_investments_transaction_type)
+    @classonlymethod
+    def get_investments_transaction_type(cls):
+        if cls._investments_transaction_type:
+            return cls._investments_transaction_type
+        cls._investments_transaction_type = cls._get_transaction_type(cls._investments_transaction_type_pk)
+        return cls._investments_transaction_type
 
 
 class Messages:

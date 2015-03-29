@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import F
 from factory.admin_forms import PurchaseForm
 from factory.models import Measure, Material, Product, JobTitle, Employee, TransactionType, Transaction, Purchase, Sale, \
     Manufacture, ComponentOfProduct
@@ -15,6 +16,12 @@ class ProductModelAdmin(admin.ModelAdmin):
 
 class PurchaseModelAdmin(admin.ModelAdmin):
     form = PurchaseForm
+
+    def save_model(self, request, obj, form, change):
+        obj.save()
+        Transaction.objects.create_purchase_transaction(amount=obj.quantity * obj.material.price, content_object=obj)
+        obj.material.quantity = F('quantity') + obj.quantity
+        obj.material.save()
 
 
 admin.site.register(Measure)
