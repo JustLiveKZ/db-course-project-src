@@ -6,9 +6,9 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
 from django.utils.decorators import classonlymethod
+from django.utils.translation import ugettext as _
 
-from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, \
-    MeasurableModelMixin, PricedModelMixin
+from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, MeasurableModelMixin, PricedModelMixin
 from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME, ContentTypes
 from factory.managers import TransactionManager
 
@@ -87,3 +87,6 @@ class Manufacture(CountableModelMixin, DateTimeModelMixin):
 
     def __unicode__(self):
         return u'%s' % self.product
+
+    class Meta:
+        verbose_name_plural = _('Manufacture')

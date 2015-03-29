@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('employee', models.ForeignKey(to='factory.Employee')),
             ],
             options={
-                'abstract': False,
+                'verbose_name_plural': 'Manufacture',
             },
             bases=(models.Model,),
         ),
