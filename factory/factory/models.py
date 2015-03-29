@@ -1,10 +1,14 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
 from django.utils.decorators import classonlymethod
 
-from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, MeasurableModelMixin, PricedModelMixin
-from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME
+from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, \
+    MeasurableModelMixin, PricedModelMixin
+from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME, ContentTypes
+from factory.managers import TransactionManager
 
 
 class Measure(NamedModelMixin):
@@ -45,6 +49,12 @@ class TransactionType(NamedModelMixin):
 class Transaction(DateTimeModelMixin):
     transaction_type = models.ForeignKey(TransactionType)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    content_type = models.ForeignKey(ContentType, null=True, blank=True,
+                                     limit_choices_to={'model__in': [ContentTypes.PURCHASE, ContentTypes.SALE, ContentTypes.EMPLOYEE]})
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey()
+
+    objects = TransactionManager()
 
     def __unicode__(self):
         return '%s, %s, %s' % (self.amount, self.transaction_type, self.datetime)
@@ -59,7 +69,7 @@ class Purchase(TradeDealModelMixin):
     material = models.ForeignKey(Material)
 
     def __unicode__(self):
-        return self.material
+        return u'%s' % self.material
 
 
 class Sale(TradeDealModelMixin):
@@ -74,4 +84,4 @@ class Manufacture(CountableModelMixin, DateTimeModelMixin):
     employee = models.ForeignKey(Employee)
 
     def __unicode__(self):
-        return self.product
+        return u'%s' % self.product

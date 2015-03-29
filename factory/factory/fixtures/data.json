@@ -1,13 +1,88 @@
 [
 {
   "fields": {
+    "name": "kg"
+  },
+  "model": "factory.measure",
+  "pk": 1
+},
+{
+  "fields": {
+    "price": "100",
+    "quantity": "20",
+    "name": "Wood",
+    "measure": 1
+  },
+  "model": "factory.material",
+  "pk": 1
+},
+{
+  "fields": {
+    "name": "Manager"
+  },
+  "model": "factory.jobtitle",
+  "pk": 1
+},
+{
+  "fields": {
+    "salary": "15000",
+    "phone": "+123456789",
+    "address": "Washington street, 152",
+    "name": "John Smith",
+    "job_title": 1
+  },
+  "model": "factory.employee",
+  "pk": 1
+},
+{
+  "fields": {
+    "type": 2,
+    "name": "Material Purchase"
+  },
+  "model": "factory.transactiontype",
+  "pk": 1
+},
+{
+  "fields": {
+    "type": 1,
+    "name": "Product Selling"
+  },
+  "model": "factory.transactiontype",
+  "pk": 2
+},
+{
+  "fields": {
+    "type": 2,
+    "name": "Salary"
+  },
+  "model": "factory.transactiontype",
+  "pk": 3
+},
+{
+  "fields": {
+    "type": 2,
+    "name": "Taxes"
+  },
+  "model": "factory.transactiontype",
+  "pk": 4
+},
+{
+  "fields": {
+    "type": 1,
+    "name": "Investitions"
+  },
+  "model": "factory.transactiontype",
+  "pk": 5
+},
+{
+  "fields": {
     "username": "root",
     "first_name": "",
     "last_name": "",
     "is_active": true,
     "is_superuser": true,
     "is_staff": true,
-    "last_login": "2015-03-16T18:08:55.238Z",
+    "last_login": "2015-03-26T18:33:44.986Z",
     "groups": [],
     "user_permissions": [],
     "password": "pbkdf2_sha256$15000$xjvbVioYiiOA$QkPFFTqr3x6YCwNGS/zn/Yo6eLaWEvfSbUQaEZnCKjs=",
