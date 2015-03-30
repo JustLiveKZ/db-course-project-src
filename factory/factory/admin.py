@@ -2,12 +2,14 @@ from django.contrib import admin
 from django.db.models import F
 
 from factory.admin_forms import PurchaseForm, SaleForm, ManufactureForm
-from factory.models import Measure, Material, Product, JobTitle, Employee, TransactionType, Transaction, Purchase, Sale, Manufacture, ComponentOfProduct
+from factory.models import Measure, Material, Product, JobTitle, Employee, TransactionType, Transaction, Purchase, Sale, Manufacture, \
+    ComponentOfProduct
 
 
 class MaterialInline(admin.TabularInline):
     model = ComponentOfProduct
     fields = ['material', 'quantity']
+    extra = 0
 
 
 class ProductModelAdmin(admin.ModelAdmin):
@@ -39,6 +41,11 @@ class ManufactureModelAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.save()
+        for component in obj.product.componentofproduct_set.all():
+            component.material.quantity = F('quantity') - obj.quantity * component.quantity
+            component.material.save()
+        obj.product.quantity = F('quantity') + obj.quantity
+        obj.product.save()
 
 
 admin.site.register(Measure)

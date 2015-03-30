@@ -52,10 +52,16 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as DEFAULT_TEMPLATE_CONTEXT_PROCESSORS
 
-TEMPLATE_CONTEXT_PROCESSORS = TCP + (
+TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_TEMPLATE_CONTEXT_PROCESSORS + (
     "django.core.context_processors.request",
+)
+
+from django.conf.global_settings import TEMPLATE_DIRS as DEFAULT_TEMPLATE_DIRS
+
+TEMPLATE_DIRS = DEFAULT_TEMPLATE_DIRS + (
+    os.path.join(BASE_DIR, 'factory', 'templates'),
 )
 
 ROOT_URLCONF = 'main.urls'

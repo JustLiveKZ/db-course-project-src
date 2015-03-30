@@ -41,7 +41,11 @@ class ManufactureForm(forms.ModelForm):
         errors = []
         for component in product.componentofproduct_set.all():
             if component.material.quantity < quantity * component.quantity:
-                errors.append(ValidationError())
+                errors.append(ValidationError(Messages.NOT_ENOUGH_MATERIAL,
+                                              params={'required_quantity': quantity * component.quantity,
+                                                      'measure': component.material.measure,
+                                                      'material': component.material,
+                                                      'current_quantity': component.material.quantity}))
         if errors:
             raise ValidationError(errors)
         return quantity
