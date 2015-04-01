@@ -6,18 +6,28 @@ from factory.models import Measure, Material, Product, JobTitle, Employee, Trans
     ComponentOfProduct
 
 
+class MaterialModelAdmin(admin.ModelAdmin):
+    readonly_fields = 'quantity',
+
+
 class MaterialInline(admin.TabularInline):
     model = ComponentOfProduct
-    fields = ['material', 'quantity']
+    fields = 'material', 'quantity'
     extra = 0
 
 
 class ProductModelAdmin(admin.ModelAdmin):
     inlines = [MaterialInline]
+    readonly_fields = 'quantity',
 
 
 class PurchaseModelAdmin(admin.ModelAdmin):
     form = PurchaseForm
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return ()
+        return 'material', 'quantity', 'employee'
 
     def save_model(self, request, obj, form, change):
         obj.save()
@@ -39,6 +49,11 @@ class SaleModelAdmin(admin.ModelAdmin):
 class ManufactureModelAdmin(admin.ModelAdmin):
     form = ManufactureForm
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return ()
+        return 'product', 'quantity', 'employee', 'datetime'
+
     def save_model(self, request, obj, form, change):
         obj.save()
         for component in obj.product.componentofproduct_set.all():
@@ -48,13 +63,20 @@ class ManufactureModelAdmin(admin.ModelAdmin):
         obj.product.save()
 
 
+class TransactionModelAdmin(admin.ModelAdmin):
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return ()
+        return 'transaction_type', 'amount', 'content_type', 'object_id', 'datetime'
+
+
 admin.site.register(Measure)
-admin.site.register(Material)
+admin.site.register(Material, MaterialModelAdmin)
 admin.site.register(Product, ProductModelAdmin)
 admin.site.register(JobTitle)
 admin.site.register(Employee)
 admin.site.register(TransactionType)
-admin.site.register(Transaction)
+admin.site.register(Transaction, TransactionModelAdmin)
 admin.site.register(Purchase, PurchaseModelAdmin)
 admin.site.register(Sale, SaleModelAdmin)
 admin.site.register(Manufacture, ManufactureModelAdmin)

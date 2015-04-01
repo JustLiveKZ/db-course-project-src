@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -27,7 +28,7 @@ class PricedModelMixin(models.Model):
 
 
 class CountableModelMixin(models.Model):
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=Decimal(0))
 
     class Meta:
         abstract = True

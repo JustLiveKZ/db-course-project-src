@@ -17,7 +17,7 @@ class PurchaseForm(forms.ModelForm):
 
     class Meta:
         model = Purchase
-        fields = ['material', 'quantity', 'employee']
+        fields = 'material', 'quantity', 'employee'
 
 
 class SaleForm(forms.ModelForm):
@@ -31,7 +31,7 @@ class SaleForm(forms.ModelForm):
 
     class Meta:
         model = Sale
-        fields = ['product', 'quantity', 'employee']
+        fields = 'product', 'quantity', 'employee'
 
 
 class ManufactureForm(forms.ModelForm):
@@ -52,4 +52,4 @@ class ManufactureForm(forms.ModelForm):
 
     class Meta:
         model = Manufacture
-        fields = ['product', 'quantity', 'employee']
+        fields = 'product', 'quantity', 'employee'
