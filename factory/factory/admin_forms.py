@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from factory.constants import Messages
+from factory.constants import Messages, OUTCOME
 from factory.models import Purchase, Transaction, Sale, Manufacture
 
 
@@ -10,9 +10,12 @@ class PurchaseForm(forms.ModelForm):
         quantity = self.cleaned_data.get('quantity')
         material = self.cleaned_data.get('material')
         balance = Transaction.get_balance()
-        if balance < quantity * material.price:
-            raise ValidationError(Messages.INSUFFICIENT_FUNDS,
-                                  params={'required_money': quantity * material.price, 'current_money': balance})
+        try:
+            if balance < quantity * material.price:
+                raise ValidationError(Messages.INSUFFICIENT_FUNDS,
+                                      params={'required_money': quantity * material.price, 'current_money': balance})
+        except AttributeError:
+            pass
         return quantity
 
     class Meta:
@@ -24,9 +27,12 @@ class SaleForm(forms.ModelForm):
     def clean_quantity(self):
         quantity = self.cleaned_data.get('quantity')
         product = self.cleaned_data.get('product')
-        if product.quantity < quantity:
-            raise ValidationError(Messages.NOT_ENOUGH_PRODUCTS,
-                                  params={'current_quantity': product.quantity, 'measure': product.measure})
+        try:
+            if product.quantity < quantity:
+                raise ValidationError(Messages.NOT_ENOUGH_PRODUCTS,
+                                      params={'current_quantity': product.quantity, 'measure': product.measure})
+        except AttributeError:
+            pass
         return quantity
 
     class Meta:
@@ -53,3 +59,23 @@ class ManufactureForm(forms.ModelForm):
     class Meta:
         model = Manufacture
         fields = 'product', 'quantity', 'employee'
+
+
+class TransactionForm(forms.ModelForm):
+    def clean_amount(self):
+        transaction_type = self.cleaned_data.get('transaction_type')
+        amount = self.cleaned_data.get('amount')
+        try:
+            if transaction_type.type == OUTCOME:
+                balance = Transaction.get_balance()
+                if balance < amount:
+                    raise ValidationError(Messages.INSUFFICIENT_FUNDS,
+                                          params={'required_money': amount, 'current_money': balance})
+        except AttributeError:
+            pass
+        return amount
+
+
+    class Meta:
+        model = Transaction
+        fields = 'transaction_type', 'amount'

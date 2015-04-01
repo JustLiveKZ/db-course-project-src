@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db.models import F
 
-from factory.admin_forms import PurchaseForm, SaleForm, ManufactureForm
+from factory.admin_forms import PurchaseForm, SaleForm, ManufactureForm, TransactionForm
 from factory.models import Measure, Material, Product, JobTitle, Employee, TransactionType, Transaction, Purchase, Sale, Manufacture, \
     ComponentOfProduct
 
@@ -64,6 +64,8 @@ class ManufactureModelAdmin(admin.ModelAdmin):
 
 
 class TransactionModelAdmin(admin.ModelAdmin):
+    form = TransactionForm
+
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
             return ()

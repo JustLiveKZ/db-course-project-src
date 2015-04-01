@@ -15,6 +15,10 @@ class ContentTypes:
     SALE = 'sale'
     EMPLOYEE = 'employee'
 
+    @classonlymethod
+    def get_choices_for_field(cls):
+        return {'model__in': (cls.PURCHASE, cls.EMPLOYEE, cls.SALE)}
+
 
 class TransactionTypes:
     model = None
@@ -76,6 +80,10 @@ class TransactionTypes:
             return cls._investments_transaction_type
         cls._investments_transaction_type = cls._get_transaction_type(cls._investments_transaction_type_pk)
         return cls._investments_transaction_type
+
+    @classonlymethod
+    def get_choices_for_field(cls):
+        return {'pk__in': (cls.get_salary_transaction_type().pk, cls.get_taxes_transaction_type().pk, cls.get_investments_transaction_type().pk)}
 
 
 class Messages:

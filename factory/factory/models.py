@@ -8,8 +8,9 @@ from django.db.models import Sum
 from django.utils.decorators import classonlymethod
 from django.utils.translation import ugettext as _
 
-from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, MeasurableModelMixin, PricedModelMixin
-from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME, ContentTypes
+from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, MeasurableModelMixin, \
+    PricedModelMixin
+from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME, ContentTypes, TransactionTypes
 from factory.managers import TransactionManager
 
 
@@ -39,7 +40,7 @@ class JobTitle(NamedModelMixin):
 
 class Employee(NamedModelMixin):
     job_title = models.ForeignKey(JobTitle)
-    salary = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    salary = models.DecimalField(max_digits=17, decimal_places=2, validators=[MinValueValidator(0)])
     address = models.CharField(max_length=100)
     phone = models.CharField(max_length=40)
 
@@ -49,10 +50,9 @@ class TransactionType(NamedModelMixin):
 
 
 class Transaction(DateTimeModelMixin):
-    transaction_type = models.ForeignKey(TransactionType)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    content_type = models.ForeignKey(ContentType, null=True, blank=True,
-                                     limit_choices_to={'model__in': [ContentTypes.PURCHASE, ContentTypes.SALE, ContentTypes.EMPLOYEE]})
+    transaction_type = models.ForeignKey(TransactionType, limit_choices_to=TransactionTypes.get_choices_for_field)
+    amount = models.DecimalField(max_digits=17, decimal_places=2, validators=[MinValueValidator(0)])
+    content_type = models.ForeignKey(ContentType, null=True, blank=True, limit_choices_to=ContentTypes.get_choices_for_field)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey()
 

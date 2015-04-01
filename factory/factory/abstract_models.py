@@ -21,14 +21,14 @@ class MeasurableModelMixin(models.Model):
 
 
 class PricedModelMixin(models.Model):
-    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    price = models.DecimalField(max_digits=17, decimal_places=2, validators=[MinValueValidator(0)])
 
     class Meta:
         abstract = True
 
 
 class CountableModelMixin(models.Model):
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=Decimal(0))
+    quantity = models.DecimalField(max_digits=17, decimal_places=2, validators=[MinValueValidator(0)], default=Decimal(0))
 
     class Meta:
         abstract = True
