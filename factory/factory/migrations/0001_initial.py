@@ -14,6 +14,20 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='Activity',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('datetime', models.DateTimeField(auto_now_add=True)),
+                ('object_id', models.PositiveIntegerField(null=True, blank=True)),
+                ('content_type', models.ForeignKey(blank=True, to='contenttypes.ContentType', null=True)),
+            ],
+            options={
+                'ordering': ('-datetime',),
+                'verbose_name_plural': 'Activities',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='ComponentOfProduct',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -134,8 +148,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('datetime', models.DateTimeField(auto_now_add=True)),
-                ('amount', models.DecimalField(max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('object_id', models.PositiveIntegerField(null=True, blank=True)),
+                ('amount', models.DecimalField(max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('content_type', models.ForeignKey(blank=True, to='contenttypes.ContentType', null=True)),
             ],
             options={

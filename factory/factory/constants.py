@@ -10,16 +10,6 @@ TRANSACTION_TYPE_CHOICES = (
 )
 
 
-class ContentTypes:
-    PURCHASE = 'purchase'
-    SALE = 'sale'
-    EMPLOYEE = 'employee'
-
-    @classonlymethod
-    def get_choices_for_field(cls):
-        return {'model__in': (cls.PURCHASE, cls.EMPLOYEE, cls.SALE)}
-
-
 class TransactionTypes:
     model = None
     _purchase_transaction_type = None
@@ -82,8 +72,10 @@ class TransactionTypes:
         return cls._investments_transaction_type
 
     @classonlymethod
-    def get_choices_for_field(cls):
-        return {'pk__in': (cls.get_salary_transaction_type().pk, cls.get_taxes_transaction_type().pk, cls.get_investments_transaction_type().pk)}
+    def get_queryset_for_field(cls):
+        if not cls.model:
+            cls._load_model()
+        return cls.model.objects.filter(pk__in=[cls.get_salary_transaction_type().pk, cls.get_investments_transaction_type().pk, cls.get_taxes_transaction_type().pk])
 
 
 class Messages:

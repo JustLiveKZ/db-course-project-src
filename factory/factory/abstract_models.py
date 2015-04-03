@@ -1,4 +1,7 @@
 from decimal import Decimal
+from abc import ABCMeta, abstractmethod
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -46,3 +49,20 @@ class TradeDealModelMixin(CountableModelMixin, DateTimeModelMixin):
 
     class Meta:
         abstract = True
+
+
+class GenericForeignKeyModelMixin(models.Model):
+    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey()
+
+    class Meta:
+        abstract = True
+
+
+class LogViewInterface(object):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def as_tr(self):
+        pass

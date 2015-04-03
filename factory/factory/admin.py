@@ -2,8 +2,27 @@ from django.contrib import admin
 from django.db.models import F
 
 from factory.admin_forms import PurchaseForm, SaleForm, ManufactureForm, TransactionForm
-from factory.models import Measure, Material, Product, JobTitle, Employee, TransactionType, Transaction, Purchase, Sale, Manufacture, \
-    ComponentOfProduct
+from factory.constants import TransactionTypes
+from factory.models import Measure, Material, Product, JobTitle, Employee, TransactionType, Transaction, Purchase, Sale, Manufacture, ComponentOfProduct, Activity
+
+
+class NotAddableModelAdminMixin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        return False
+
+
+class NotEditableModelAdminMixin(admin.ModelAdmin):
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+class NotDeletableModelAdminMixin(admin.ModelAdmin):
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class NoBulkActionsModelAdminMixin(admin.ModelAdmin):
+    actions = None
 
 
 class MaterialModelAdmin(admin.ModelAdmin):
@@ -21,7 +40,7 @@ class ProductModelAdmin(admin.ModelAdmin):
     readonly_fields = 'quantity',
 
 
-class PurchaseModelAdmin(admin.ModelAdmin):
+class PurchaseModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = PurchaseForm
 
     def get_readonly_fields(self, request, obj=None):
@@ -36,7 +55,7 @@ class PurchaseModelAdmin(admin.ModelAdmin):
         obj.material.save()
 
 
-class SaleModelAdmin(admin.ModelAdmin):
+class SaleModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = SaleForm
 
     def save_model(self, request, obj, form, change):
@@ -46,7 +65,7 @@ class SaleModelAdmin(admin.ModelAdmin):
         obj.product.save()
 
 
-class ManufactureModelAdmin(admin.ModelAdmin):
+class ManufactureModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = ManufactureForm
 
     def get_readonly_fields(self, request, obj=None):
@@ -63,13 +82,26 @@ class ManufactureModelAdmin(admin.ModelAdmin):
         obj.product.save()
 
 
-class TransactionModelAdmin(admin.ModelAdmin):
+class TransactionModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = TransactionForm
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
             return ()
         return 'transaction_type', 'amount', 'content_type', 'object_id', 'datetime'
+
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        if db_field.name is 'transaction_type':
+            kwargs['queryset'] = TransactionTypes.get_queryset_for_field()
+        return super(TransactionModelAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        obj.save()
+
+
+class ActivityModelAdmin(NotAddableModelAdminMixin, NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
+    readonly_fields = 'content_type', 'object_id', 'datetime'
+    list_filter = 'datetime',
 
 
 admin.site.register(Measure)
@@ -82,3 +114,4 @@ admin.site.register(Transaction, TransactionModelAdmin)
 admin.site.register(Purchase, PurchaseModelAdmin)
 admin.site.register(Sale, SaleModelAdmin)
 admin.site.register(Manufacture, ManufactureModelAdmin)
+admin.site.register(Activity, ActivityModelAdmin)

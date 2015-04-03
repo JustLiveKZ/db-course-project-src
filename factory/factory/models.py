@@ -1,16 +1,15 @@
 from decimal import Decimal
 
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.decorators import classonlymethod
 from django.utils.translation import ugettext as _
-
-from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, MeasurableModelMixin, \
-    PricedModelMixin
-from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME, ContentTypes, TransactionTypes
+from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, MeasurableModelMixin, PricedModelMixin, GenericForeignKeyModelMixin
+from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME
 from factory.managers import TransactionManager
 
 
@@ -49,12 +48,9 @@ class TransactionType(NamedModelMixin):
     type = models.IntegerField(choices=TRANSACTION_TYPE_CHOICES)
 
 
-class Transaction(DateTimeModelMixin):
-    transaction_type = models.ForeignKey(TransactionType, limit_choices_to=TransactionTypes.get_choices_for_field)
+class Transaction(DateTimeModelMixin, GenericForeignKeyModelMixin):
+    transaction_type = models.ForeignKey(TransactionType)
     amount = models.DecimalField(max_digits=17, decimal_places=2, validators=[MinValueValidator(0)])
-    content_type = models.ForeignKey(ContentType, null=True, blank=True, limit_choices_to=ContentTypes.get_choices_for_field)
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    content_object = GenericForeignKey()
 
     objects = TransactionManager()
 
@@ -90,3 +86,19 @@ class Manufacture(CountableModelMixin, DateTimeModelMixin):
 
     class Meta:
         verbose_name_plural = _('Manufacture')
+
+
+class Activity(DateTimeModelMixin, GenericForeignKeyModelMixin):
+    def __unicode__(self):
+        return u'%s' % self.content_object
+
+    class Meta:
+        ordering = '-datetime',
+        verbose_name_plural = _('Activities')
+
+
+@receiver(post_save)
+def log_activity(sender, instance, **kwargs):
+    logging_models = Purchase, Sale, Manufacture, Transaction
+    if sender in logging_models:
+        Activity.objects.create(content_object=instance)

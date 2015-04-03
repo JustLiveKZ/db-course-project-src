@@ -66,7 +66,7 @@ class TransactionForm(forms.ModelForm):
         transaction_type = self.cleaned_data.get('transaction_type')
         amount = self.cleaned_data.get('amount')
         try:
-            if transaction_type.type == OUTCOME:
+            if transaction_type.type is OUTCOME:
                 balance = Transaction.get_balance()
                 if balance < amount:
                     raise ValidationError(Messages.INSUFFICIENT_FUNDS,
@@ -74,7 +74,6 @@ class TransactionForm(forms.ModelForm):
         except AttributeError:
             pass
         return amount
-
 
     class Meta:
         model = Transaction

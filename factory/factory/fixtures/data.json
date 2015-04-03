@@ -1,41 +1,6 @@
 [
 {
   "fields": {
-    "name": "kg"
-  },
-  "model": "factory.measure",
-  "pk": 1
-},
-{
-  "fields": {
-    "price": "100",
-    "quantity": "20",
-    "name": "Wood",
-    "measure": 1
-  },
-  "model": "factory.material",
-  "pk": 1
-},
-{
-  "fields": {
-    "name": "Manager"
-  },
-  "model": "factory.jobtitle",
-  "pk": 1
-},
-{
-  "fields": {
-    "salary": "15000",
-    "phone": "+123456789",
-    "address": "Washington street, 152",
-    "name": "John Smith",
-    "job_title": 1
-  },
-  "model": "factory.employee",
-  "pk": 1
-},
-{
-  "fields": {
     "type": 2,
     "name": "Material Purchase"
   },
@@ -69,7 +34,7 @@
 {
   "fields": {
     "type": 1,
-    "name": "Investitions"
+    "name": "Investments"
   },
   "model": "factory.transactiontype",
   "pk": 5
