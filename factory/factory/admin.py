@@ -27,6 +27,7 @@ class NoBulkActionsModelAdminMixin(admin.ModelAdmin):
 
 class MaterialModelAdmin(admin.ModelAdmin):
     readonly_fields = 'quantity',
+    list_display = 'name', 'measure', 'price', 'quantity'
 
 
 class MaterialInline(admin.TabularInline):
@@ -38,10 +39,16 @@ class MaterialInline(admin.TabularInline):
 class ProductModelAdmin(admin.ModelAdmin):
     inlines = [MaterialInline]
     readonly_fields = 'quantity',
+    list_display = 'name', 'measure', 'price', 'quantity'
+
+
+class EmployeeModelAdmin(admin.ModelAdmin):
+    list_display = 'name', 'job_title', 'salary', 'address', 'phone'
 
 
 class PurchaseModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = PurchaseForm
+    list_display = 'material', 'quantity', 'datetime', 'employee'
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
@@ -57,6 +64,7 @@ class PurchaseModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMix
 
 class SaleModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = SaleForm
+    list_display = 'product', 'quantity', 'datetime', 'employee'
 
     def save_model(self, request, obj, form, change):
         obj.save()
@@ -67,6 +75,7 @@ class SaleModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
 
 class ManufactureModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = ManufactureForm
+    list_display = 'product', 'quantity', 'datetime', 'employee'
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
@@ -84,6 +93,7 @@ class ManufactureModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdmin
 
 class TransactionModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = TransactionForm
+    list_display = 'transaction_type', 'content_object', 'amount', 'datetime'
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
@@ -102,13 +112,15 @@ class TransactionModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdmin
 class ActivityModelAdmin(NotAddableModelAdminMixin, NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     readonly_fields = 'content_type', 'object_id', 'datetime'
     list_filter = 'datetime',
+    list_display = 'datetime', 'content_typegi', 'content_object'
+    list_display_links = None
 
 
 admin.site.register(Measure)
 admin.site.register(Material, MaterialModelAdmin)
 admin.site.register(Product, ProductModelAdmin)
 admin.site.register(JobTitle)
-admin.site.register(Employee)
+admin.site.register(Employee, EmployeeModelAdmin)
 admin.site.register(TransactionType)
 admin.site.register(Transaction, TransactionModelAdmin)
 admin.site.register(Purchase, PurchaseModelAdmin)

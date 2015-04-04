@@ -55,7 +55,7 @@ class Transaction(DateTimeModelMixin, GenericForeignKeyModelMixin):
     objects = TransactionManager()
 
     def __unicode__(self):
-        return u'%s, %s, %s' % (self.amount, self.transaction_type, self.datetime)
+        return u'%s, %s' % (self.transaction_type, self.amount)
 
     @classonlymethod
     def get_balance(cls):
@@ -67,14 +67,14 @@ class Purchase(TradeDealModelMixin):
     material = models.ForeignKey(Material)
 
     def __unicode__(self):
-        return u'%s, %s %s, %s' % (self.material, self.quantity, self.material.measure, self.datetime)
+        return u'%s, %s %s' % (self.material, self.quantity, self.material.measure)
 
 
 class Sale(TradeDealModelMixin):
     product = models.ForeignKey(Product)
 
     def __unicode__(self):
-        return u'%s' % self.product
+        return u'%s, %s %s' % (self.product, self.quantity, self.product.measure)
 
 
 class Manufacture(CountableModelMixin, DateTimeModelMixin):
@@ -82,7 +82,7 @@ class Manufacture(CountableModelMixin, DateTimeModelMixin):
     employee = models.ForeignKey(Employee)
 
     def __unicode__(self):
-        return u'%s' % self.product
+        return u'%s, %s %s' % (self.product, self.quantity, self.product.measure)
 
     class Meta:
         verbose_name_plural = _('Manufacture')
