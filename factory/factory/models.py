@@ -32,6 +32,9 @@ class ComponentOfProduct(CountableModelMixin):
     def __unicode__(self):
         return u'%s' % self.material
 
+    class Meta:
+        unique_together = 'material', 'product'
+
 
 class JobTitle(NamedModelMixin):
     pass

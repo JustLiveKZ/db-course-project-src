@@ -1,6 +1,67 @@
 [
 {
   "fields": {
+    "name": "pcs"
+  },
+  "model": "factory.measure",
+  "pk": 1
+},
+{
+  "fields": {
+    "name": "kg"
+  },
+  "model": "factory.measure",
+  "pk": 2
+},
+{
+  "fields": {
+    "price": "100",
+    "quantity": "1",
+    "name": "Wood",
+    "measure": 2
+  },
+  "model": "factory.material",
+  "pk": 1
+},
+{
+  "fields": {
+    "price": "1000",
+    "quantity": "0",
+    "name": "Door",
+    "measure": 1
+  },
+  "model": "factory.product",
+  "pk": 1
+},
+{
+  "fields": {
+    "product": 1,
+    "material": 1,
+    "quantity": "15"
+  },
+  "model": "factory.componentofproduct",
+  "pk": 1
+},
+{
+  "fields": {
+    "name": "Manager"
+  },
+  "model": "factory.jobtitle",
+  "pk": 1
+},
+{
+  "fields": {
+    "salary": "10000",
+    "phone": "+123456789",
+    "address": "Washington street, 152",
+    "name": "John Smith",
+    "job_title": 1
+  },
+  "model": "factory.employee",
+  "pk": 1
+},
+{
+  "fields": {
     "type": 2,
     "name": "Material Purchase"
   },
@@ -41,13 +102,82 @@
 },
 {
   "fields": {
+    "amount": "1000",
+    "transaction_type": 2,
+    "object_id": 1,
+    "content_type": [
+      "factory",
+      "sale"
+    ],
+    "datetime": "2015-04-04T07:18:47.394Z"
+  },
+  "model": "factory.transaction",
+  "pk": 1
+},
+{
+  "fields": {
+    "amount": "100",
+    "transaction_type": 1,
+    "object_id": 1,
+    "content_type": [
+      "factory",
+      "purchase"
+    ],
+    "datetime": "2015-04-04T07:18:56.028Z"
+  },
+  "model": "factory.transaction",
+  "pk": 2
+},
+{
+  "fields": {
+    "amount": "10",
+    "transaction_type": 3,
+    "object_id": null,
+    "content_type": null,
+    "datetime": "2015-04-04T07:21:10.567Z"
+  },
+  "model": "factory.transaction",
+  "pk": 3
+},
+{
+  "fields": {
+    "employee": 1,
+    "material": 1,
+    "datetime": "2015-04-04T07:18:56.027Z",
+    "quantity": "1"
+  },
+  "model": "factory.purchase",
+  "pk": 1
+},
+{
+  "fields": {
+    "employee": 1,
+    "product": 1,
+    "datetime": "2015-04-04T07:18:47.392Z",
+    "quantity": "1"
+  },
+  "model": "factory.sale",
+  "pk": 1
+},
+{
+  "fields": {
+    "employee": 1,
+    "product": 1,
+    "datetime": "2015-04-04T07:14:40.199Z",
+    "quantity": "1"
+  },
+  "model": "factory.manufacture",
+  "pk": 1
+},
+{
+  "fields": {
     "username": "root",
     "first_name": "",
     "last_name": "",
     "is_active": true,
     "is_superuser": true,
     "is_staff": true,
-    "last_login": "2015-03-26T18:33:44.986Z",
+    "last_login": "2015-04-03T19:11:26.978Z",
     "groups": [],
     "user_permissions": [],
     "password": "pbkdf2_sha256$15000$xjvbVioYiiOA$QkPFFTqr3x6YCwNGS/zn/Yo6eLaWEvfSbUQaEZnCKjs=",

@@ -34,7 +34,6 @@ class Migration(migrations.Migration):
                 ('quantity', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
             ],
             options={
-                'abstract': False,
             },
             bases=(models.Model,),
         ),
@@ -204,5 +203,9 @@ class Migration(migrations.Migration):
             name='product',
             field=models.ForeignKey(to='factory.Product'),
             preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='componentofproduct',
+            unique_together=set([('material', 'product')]),
         ),
     ]
