@@ -1,4 +1,6 @@
 Django==1.7.6
 django-extensions==1.5.1
+django-pyodbc-azure==1.2.7
 django-wpadmin==1.7.0
+pyodbc==3.0.7
 six==1.9.0
