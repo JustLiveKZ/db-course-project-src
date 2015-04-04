@@ -112,7 +112,7 @@ class TransactionModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdmin
 class ActivityModelAdmin(NotAddableModelAdminMixin, NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     readonly_fields = 'content_type', 'object_id', 'datetime'
     list_filter = 'datetime',
-    list_display = 'datetime', 'content_typegi', 'content_object'
+    list_display = 'datetime', 'content_type', 'content_object'
     list_display_links = None
 
 
