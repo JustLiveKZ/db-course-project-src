@@ -1,5 +1,7 @@
+from django.conf.urls import url
 from django.contrib import admin
 from django.db.models import F
+from django.http import HttpResponse
 
 from factory.admin_forms import PurchaseForm, SaleForm, ManufactureForm, TransactionForm
 from factory.constants import TransactionTypes
@@ -27,12 +29,27 @@ class NoBulkActionsModelAdminMixin(admin.ModelAdmin):
 
 class MaterialModelAdmin(admin.ModelAdmin):
     readonly_fields = 'quantity',
-    list_display = 'name', 'measure', 'price', 'quantity'
+    list_display = 'name', 'measure', 'average_price', 'price', 'quantity'
+
+    def get_urls(self):
+        urls = super(MaterialModelAdmin, self).get_urls()
+        my_urls = [
+            url(r'^(.+)/avg_price/$', self.avg_prive, name='material_avg_price'),
+        ]
+        return my_urls + urls
+
+    def avg_prive(self, request, *args, **kwargs):
+        material = Material.objects.get(pk=args[0])
+        return HttpResponse(material.average_price)
 
 
 class MaterialInline(admin.TabularInline):
+    def average_price(self, obj):
+        return obj.material.average_price
+
     model = ComponentOfProduct
-    fields = 'material', 'quantity'
+    fields = 'material', 'quantity', 'average_price'
+    readonly_fields = 'average_price',
     extra = 0
 
 
@@ -48,16 +65,17 @@ class EmployeeModelAdmin(admin.ModelAdmin):
 
 class PurchaseModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = PurchaseForm
-    list_display = 'material', 'quantity', 'datetime', 'employee'
+    list_display = 'material', 'quantity', 'amount', 'datetime', 'employee'
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
             return ()
-        return 'material', 'quantity', 'employee'
+        return 'material', 'quantity', 'employee', 'amount'
 
     def save_model(self, request, obj, form, change):
+        obj.amount = obj.quantity * obj.material.price
         obj.save()
-        Transaction.objects.create_purchase_transaction(amount=obj.quantity * obj.material.price, content_object=obj)
+        Transaction.objects.create_purchase_transaction(amount=obj.amount, content_object=obj)
         obj.material.quantity = F('quantity') + obj.quantity
         obj.material.save()
 

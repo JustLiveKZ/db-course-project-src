@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from factory.constants import Messages, OUTCOME
-from factory.models import Purchase, Transaction, Sale, Manufacture
+from factory.models import Purchase, Transaction, Sale, Manufacture, ComponentOfProduct
 
 
 class PurchaseForm(forms.ModelForm):

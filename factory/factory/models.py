@@ -1,4 +1,6 @@
-from decimal import Decimal
+from __future__ import division
+
+from decimal import Decimal, InvalidOperation, getcontext
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
@@ -9,7 +11,7 @@ from django.dispatch import receiver
 from django.utils.decorators import classonlymethod
 from django.utils.translation import ugettext as _
 from factory.abstract_models import NamedModelMixin, CountableModelMixin, DateTimeModelMixin, TradeDealModelMixin, MeasurableModelMixin, PricedModelMixin, GenericForeignKeyModelMixin
-from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME
+from factory.constants import TRANSACTION_TYPE_CHOICES, INCOME, OUTCOME, TWO_DECIMAL_PLACES
 from factory.managers import TransactionManager
 
 
@@ -18,7 +20,12 @@ class Measure(NamedModelMixin):
 
 
 class Material(NamedModelMixin, MeasurableModelMixin, CountableModelMixin, PricedModelMixin):
-    pass
+    @property
+    def average_price(self):
+        try:
+            return ((Purchase.objects.filter(material=self).aggregate(Sum('amount')).get('amount__sum') or Decimal(0)) / self.quantity).quantize(TWO_DECIMAL_PLACES)
+        except InvalidOperation:
+            return None
 
 
 class Product(NamedModelMixin, MeasurableModelMixin, CountableModelMixin, PricedModelMixin):
@@ -68,6 +75,7 @@ class Transaction(DateTimeModelMixin, GenericForeignKeyModelMixin):
 
 class Purchase(TradeDealModelMixin):
     material = models.ForeignKey(Material)
+    amount = models.DecimalField(max_digits=17, decimal_places=2, validators=[MinValueValidator(0)])
 
     def __unicode__(self):
         return u'%s, %s %s' % (self.material, self.quantity, self.material.measure)

@@ -1,5 +1,5 @@
 from decimal import Decimal
-from abc import ABCMeta, abstractmethod
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
@@ -58,11 +58,3 @@ class GenericForeignKeyModelMixin(models.Model):
 
     class Meta:
         abstract = True
-
-
-class LogViewInterface(object):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def as_tr(self):
-        pass

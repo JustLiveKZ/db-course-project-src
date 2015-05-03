@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.utils.decorators import classonlymethod
 from django.utils.translation import ugettext as _
 
@@ -8,6 +9,8 @@ TRANSACTION_TYPE_CHOICES = (
     (INCOME, _('Income')),
     (OUTCOME, _('Outcome')),
 )
+
+TWO_DECIMAL_PLACES = Decimal(10) ** -2
 
 
 class TransactionTypes:

@@ -1,0 +1,34 @@
+{% extends 'admin/factory/change_form.html' %}
+{% load staticfiles %}
+{% block extrahead %}{{ block.super }}
+    <script src="{% static 'js/jquery-1.11.3.min.js' %}"></script>
+    <script>
+        var avg_price_url = '{% url 'admin:material_avg_price' 0 %}';
+
+        var initSelects = function () {
+            $('select[name^="componentofproduct"]').change(function () {
+                var val = $(this).val();
+                var tr = $(this).parents('tr').find('td.field-average_price p');
+                if (val) {
+                    var url = avg_price_url.replace(0, val);
+                    $.ajax(url, {
+                        method: 'GET',
+                        context: this,
+                        success: function (avg_price) {
+                            tr.text(avg_price);
+                        }
+                    });
+                } else {
+                    tr.text('(None)');
+                }
+            });
+        };
+
+        $(document).ready(function () {
+            $('tr.add-row a').click(function (e) {
+                e.preventDefault();
+                initSelects();
+            });
+        });
+    </script>
+{% endblock %}
