@@ -8,18 +8,18 @@
         var initSelects = function () {
             $('select[name^="componentofproduct"]').change(function () {
                 var val = $(this).val();
-                var tr = $(this).parents('tr').find('td.field-average_price p');
+                var price_cell = $(this).parents('tr').find('td.field-average_price p');
                 if (val) {
                     var url = avg_price_url.replace(0, val);
                     $.ajax(url, {
                         method: 'GET',
                         context: this,
                         success: function (avg_price) {
-                            tr.text(avg_price);
+                            price_cell.text(avg_price);
                         }
                     });
                 } else {
-                    tr.text('(None)');
+                    price_cell.text('(None)');
                 }
             });
         };

@@ -5,4 +5,5 @@ venv
 *.bak
 settings_ubuntu.py
 settings_windows.py
-db.sqlite3
+.sqlite3
+.sqlite3-journal

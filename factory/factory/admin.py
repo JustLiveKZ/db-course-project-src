@@ -1,11 +1,13 @@
+from decimal import Decimal
 from django.conf.urls import url
 from django.contrib import admin
-from django.db.models import F
+from django.contrib.auth.models import User, Group
+from django.db.models import F, Sum
 from django.http import HttpResponse
 
 from factory.admin_forms import PurchaseForm, SaleForm, ManufactureForm, TransactionForm
 from factory.constants import TransactionTypes
-from factory.models import Measure, Material, Product, JobTitle, Employee, TransactionType, Transaction, Purchase, Sale, Manufacture, ComponentOfProduct, Activity
+from factory.models import Measure, Material, Product, JobTitle, Employee, TransactionType, Transaction, Purchase, Sale, Manufacture, ComponentOfProduct, Activity, ManufactureExpense
 
 
 class NotAddableModelAdminMixin(admin.ModelAdmin):
@@ -56,7 +58,7 @@ class MaterialInline(admin.TabularInline):
 class ProductModelAdmin(admin.ModelAdmin):
     inlines = [MaterialInline]
     readonly_fields = 'quantity',
-    list_display = 'name', 'measure', 'price', 'quantity'
+    list_display = 'name', 'measure', 'average_price', 'price', 'quantity'
 
 
 class EmployeeModelAdmin(admin.ModelAdmin):
@@ -65,7 +67,8 @@ class EmployeeModelAdmin(admin.ModelAdmin):
 
 class PurchaseModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = PurchaseForm
-    list_display = 'material', 'quantity', 'amount', 'datetime', 'employee'
+    list_display = 'material', 'quantity', 'amount', 'average_price', 'datetime', 'employee'
+    list_filter = 'material__name',
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
@@ -73,6 +76,8 @@ class PurchaseModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMix
         return 'material', 'quantity', 'employee', 'amount'
 
     def save_model(self, request, obj, form, change):
+        if change:
+            return
         obj.amount = obj.quantity * obj.material.price
         obj.save()
         Transaction.objects.create_purchase_transaction(amount=obj.amount, content_object=obj)
@@ -84,27 +89,67 @@ class SaleModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = SaleForm
     list_display = 'product', 'quantity', 'datetime', 'employee'
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return ()
+        return 'product', 'quantity', 'datetime', 'employee'
+
     def save_model(self, request, obj, form, change):
+        if change:
+            return
         obj.save()
         Transaction.objects.create_sale_transaction(amount=obj.quantity * obj.product.price, content_object=obj)
         obj.product.quantity = F('quantity') - obj.quantity
         obj.product.save()
 
 
+class ManufactureExpenseInline(admin.TabularInline):
+    model = ManufactureExpense
+    fields = 'material', 'quantity', 'amount'
+    readonly_fields = fields
+    extra = 0
+    can_delete = False
+
+    def has_add_permission(self, request):
+        return False
+
+
 class ManufactureModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
     form = ManufactureForm
-    list_display = 'product', 'quantity', 'datetime', 'employee'
+    list_display = 'product', 'quantity', 'amount', 'average_price', 'datetime', 'employee'
+    list_filter = 'product__name',
+    inlines = [ManufactureExpenseInline]
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
             return ()
         return 'product', 'quantity', 'employee', 'datetime'
 
+    def add_view(self, request, form_url='', extra_context=None):
+        self.inlines = []
+        return super(ManufactureModelAdmin, self).add_view(request, form_url, extra_context)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        self.inlines = [ManufactureExpenseInline]
+        return super(ManufactureModelAdmin, self).change_view(request, object_id, form_url, extra_context)
+
     def save_model(self, request, obj, form, change):
+        """
+        :type obj: Manufacture
+        """
+        if change:
+            return
         obj.save()
         for component in obj.product.componentofproduct_set.all():
             component.material.quantity = F('quantity') - obj.quantity * component.quantity
             component.material.save()
+            manufacture_expense = ManufactureExpense()
+            manufacture_expense.material = component.material
+            manufacture_expense.quantity = component.quantity * obj.quantity
+            manufacture_expense.amount = manufacture_expense.quantity * component.material.average_price
+            obj.expenses.add(manufacture_expense)
+        obj.amount = obj.expenses.aggregate(Sum('amount')).get('amount__sum', Decimal(0))
+        obj.save()
         obj.product.quantity = F('quantity') + obj.quantity
         obj.product.save()
 
@@ -123,7 +168,14 @@ class TransactionModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdmin
             kwargs['queryset'] = TransactionTypes.get_queryset_for_field()
         return super(TransactionModelAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['balance'] = Transaction.get_balance()
+        return super(TransactionModelAdmin, self).changelist_view(request, extra_context=extra_context)
+
     def save_model(self, request, obj, form, change):
+        if change:
+            return
         obj.save()
 
 
@@ -145,3 +197,5 @@ admin.site.register(Purchase, PurchaseModelAdmin)
 admin.site.register(Sale, SaleModelAdmin)
 admin.site.register(Manufacture, ManufactureModelAdmin)
 admin.site.register(Activity, ActivityModelAdmin)
+admin.site.unregister(User)
+admin.site.unregister(Group)

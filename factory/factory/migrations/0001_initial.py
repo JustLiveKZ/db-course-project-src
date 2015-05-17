@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100)),
-                ('salary', models.DecimalField(max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
+                ('salary', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('address', models.CharField(max_length=100)),
                 ('phone', models.CharField(max_length=40)),
             ],
@@ -68,6 +68,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('quantity', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('datetime', models.DateTimeField(auto_now_add=True)),
+                ('amount', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('employee', models.ForeignKey(to='factory.Employee')),
             ],
             options={
@@ -76,11 +77,24 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='ManufactureExpense',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('quantity', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
+                ('amount', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
+                ('manufacture', models.ForeignKey(related_name='expenses', to='factory.Manufacture')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='Material',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100)),
-                ('price', models.DecimalField(max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
+                ('price', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('quantity', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
             ],
             options={
@@ -104,7 +118,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100)),
-                ('price', models.DecimalField(max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
+                ('price', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('quantity', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('materials', models.ManyToManyField(related_name='products', through='factory.ComponentOfProduct', to='factory.Material')),
                 ('measure', models.ForeignKey(to='factory.Measure')),
@@ -120,7 +134,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('quantity', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('datetime', models.DateTimeField(auto_now_add=True)),
-                ('amount', models.DecimalField(max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
+                ('amount', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('employee', models.ForeignKey(to='factory.Employee')),
                 ('material', models.ForeignKey(to='factory.Material')),
             ],
@@ -149,7 +163,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('datetime', models.DateTimeField(auto_now_add=True)),
                 ('object_id', models.PositiveIntegerField(null=True, blank=True)),
-                ('amount', models.DecimalField(max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
+                ('amount', models.DecimalField(default=Decimal('0'), max_digits=17, decimal_places=2, validators=[django.core.validators.MinValueValidator(0)])),
                 ('content_type', models.ForeignKey(blank=True, to='contenttypes.ContentType', null=True)),
             ],
             options={
@@ -179,6 +193,12 @@ class Migration(migrations.Migration):
             model_name='material',
             name='measure',
             field=models.ForeignKey(to='factory.Measure'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='manufactureexpense',
+            name='material',
+            field=models.ForeignKey(to='factory.Material'),
             preserve_default=True,
         ),
         migrations.AddField(

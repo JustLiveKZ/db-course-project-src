@@ -10,6 +10,8 @@ TRANSACTION_TYPE_CHOICES = (
     (OUTCOME, _('Outcome')),
 )
 
+
+
 TWO_DECIMAL_PLACES = Decimal(10) ** -2
 
 
@@ -83,5 +85,5 @@ class TransactionTypes:
 
 class Messages:
     INSUFFICIENT_FUNDS = _('Insufficient funds, %(required_money).2f required while there are only %(current_money).2f')
-    NOT_ENOUGH_PRODUCTS = _('Not enough products at the stock, there are only %(current_quantity)s %(measure)s at the stock')
+    NOT_ENOUGH_PRODUCTS = _('Not enough products, there are only %(current_quantity)s %(measure)s at the stock')
     NOT_ENOUGH_MATERIAL = _('%(required_quantity)s %(measure)s of %(material)s required while there are only %(current_quantity)s %(measure)s')
