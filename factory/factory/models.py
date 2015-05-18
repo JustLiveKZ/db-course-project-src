@@ -129,6 +129,13 @@ class ManufactureExpense(CountableModelMixin):
     material = models.ForeignKey(Material)
     amount = models.DecimalField(max_digits=17, decimal_places=2, default=Decimal(0), validators=[MinValueValidator(0)])
 
+    @property
+    def average_price(self):
+        try:
+            return ((self.amount or Decimal(0)) / (self.quantity or Decimal(0))).quantize(TWO_DECIMAL_PLACES)
+        except InvalidOperation:
+            return None
+
     def __unicode__(self):
         return u'%s' % self.material
 

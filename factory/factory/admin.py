@@ -105,7 +105,7 @@ class SaleModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
 
 class ManufactureExpenseInline(admin.TabularInline):
     model = ManufactureExpense
-    fields = 'material', 'quantity', 'amount'
+    fields = 'material', 'quantity', 'amount', 'average_price'
     readonly_fields = fields
     extra = 0
     can_delete = False
