@@ -78,11 +78,8 @@ class PurchaseModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMix
     def save_model(self, request, obj, form, change):
         if change:
             return
-        obj.amount = obj.quantity * obj.material.price
         obj.save()
-        Transaction.objects.create_purchase_transaction(amount=obj.amount, content_object=obj)
-        obj.material.quantity = F('quantity') + obj.quantity
-        obj.material.save()
+        obj.save_related()
 
 
 class SaleModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
@@ -98,9 +95,7 @@ class SaleModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):
         if change:
             return
         obj.save()
-        Transaction.objects.create_sale_transaction(amount=obj.quantity * obj.product.price, content_object=obj)
-        obj.product.quantity = F('quantity') - obj.quantity
-        obj.product.save()
+        obj.save_related()
 
 
 class ManufactureExpenseInline(admin.TabularInline):
@@ -140,18 +135,7 @@ class ManufactureModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdmin
         if change:
             return
         obj.save()
-        for component in obj.product.componentofproduct_set.all():
-            component.material.quantity = F('quantity') - obj.quantity * component.quantity
-            component.material.save()
-            manufacture_expense = ManufactureExpense()
-            manufacture_expense.material = component.material
-            manufacture_expense.quantity = component.quantity * obj.quantity
-            manufacture_expense.amount = manufacture_expense.quantity * component.material.average_price
-            obj.expenses.add(manufacture_expense)
-        obj.amount = obj.expenses.aggregate(Sum('amount')).get('amount__sum', Decimal(0))
-        obj.save()
-        obj.product.quantity = F('quantity') + obj.quantity
-        obj.product.save()
+        obj.save_related()
 
 
 class TransactionModelAdmin(NotDeletableModelAdminMixin, NoBulkActionsModelAdminMixin):

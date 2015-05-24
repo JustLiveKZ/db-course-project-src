@@ -5,7 +5,7 @@ from decimal import Decimal, InvalidOperation, getcontext
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.decorators import classonlymethod
@@ -95,12 +95,27 @@ class Purchase(TradeDealModelMixin):
         except InvalidOperation:
             return None
 
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.amount = self.quantity * self.material.price
+        return super(Purchase, self).save(force_insert, force_update, using, update_fields)
+
+    def save_related(self):
+        Transaction.objects.create_purchase_transaction(amount=self.amount, content_object=self)
+        self.material.quantity = F('quantity') + self.quantity
+        self.material.save()
+
     def __unicode__(self):
         return u'%s, %s %s' % (self.material, self.quantity, self.material.measure)
 
 
 class Sale(TradeDealModelMixin):
     product = models.ForeignKey(Product)
+
+    def save_related(self):
+        Transaction.objects.create_sale_transaction(amount=self.quantity * self.product.price, content_object=self)
+        self.product.quantity = F('quantity') - self.quantity
+        self.product.save()
 
     def __unicode__(self):
         return u'%s, %s %s' % (self.product, self.quantity, self.product.measure)
@@ -116,6 +131,20 @@ class Manufacture(TradeDealModelMixin):
             return self.amount / self.quantity
         except InvalidOperation:
             return None
+
+    def save_related(self):
+        for component in self.product.componentofproduct_set.all():
+            component.material.quantity = F('quantity') - self.quantity * component.quantity
+            component.material.save()
+            manufacture_expense = ManufactureExpense()
+            manufacture_expense.material = component.material
+            manufacture_expense.quantity = component.quantity * self.quantity
+            manufacture_expense.amount = manufacture_expense.quantity * component.material.average_price
+            self.expenses.add(manufacture_expense)
+        self.amount = self.expenses.aggregate(Sum('amount')).get('amount__sum', Decimal(0))
+        self.save()
+        self.product.quantity = F('quantity') + self.quantity
+        self.product.save()
 
     def __unicode__(self):
         return u'%s, %s %s' % (self.product, self.quantity, self.product.measure)

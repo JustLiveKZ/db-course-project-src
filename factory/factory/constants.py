@@ -10,8 +10,6 @@ TRANSACTION_TYPE_CHOICES = (
     (OUTCOME, _('Outcome')),
 )
 
-
-
 TWO_DECIMAL_PLACES = Decimal(10) ** -2
 
 
@@ -87,3 +85,9 @@ class Messages:
     INSUFFICIENT_FUNDS = _('Insufficient funds, %(required_money).2f required while there are only %(current_money).2f')
     NOT_ENOUGH_PRODUCTS = _('Not enough products, there are only %(current_quantity)s %(measure)s at the stock')
     NOT_ENOUGH_MATERIAL = _('%(required_quantity)s %(measure)s of %(material)s required while there are only %(current_quantity)s %(measure)s')
+    SUCCESSFUL_PURCHASE = _('You have successfully purchased %(quantity)s %(measure)s of %(material)s')
+    UNSUCCESSFUL_PURCHASE = _('Purchase was not completed. Check the form filling correctness.')
+    SUCCESSFUL_MANUFACTURE = _('You have successfully manufactured %(quantity)s %(measure)s of %(product)s')
+    UNSUCCESSFUL_MANUFACTURE = _('Manufacture was not completed. Check the form filling correctness.')
+    SUCCESSFUL_SALE = _('You have successfully sold %(quantity)s %(measure)s of %(product)s')
+    UNSUCCESSFUL_SALE = _('Sale was not completed. Check the form filling correctness.')

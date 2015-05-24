@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_extensions',
     'factory',
+    'widget_tweaks'
 )
 
 MIDDLEWARE_CLASSES = (

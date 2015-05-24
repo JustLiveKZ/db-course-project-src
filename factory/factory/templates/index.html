@@ -1,0 +1,137 @@
+{% load staticfiles i18n widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>{% trans 'Factory' %}</title>
+
+    <!-- Bootstrap -->
+    <link href="{% static 'bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="{% static 'js/jquery-1.11.3.min.js' %}"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+</head>
+<body>
+<div class="container-fluid">
+    {% include 'partial/messages.html' %}
+    <div class="row">
+        <div class="col-md-12">
+            <h3>{% trans 'Current balance:' %} {{ balance }}</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <h3>{% trans 'Material Purchasing' %}</h3>
+
+            <form action="{% url 'factory:purchase' %}" method="post" class="form-horizontal">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ purchase_form.material.id_for_label }}" class="col-sm-3 control-label">{{ purchase_form.material.label }}</label>
+
+                    <div class="col-sm-9">
+                        {{ purchase_form.material|add_class:'form-control' }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ purchase_form.quantity.id_for_label }}" class="col-sm-3 control-label">{{ purchase_form.quantity.label }}</label>
+
+                    <div class="col-sm-9">
+                        {{ purchase_form.quantity|add_class:'form-control' }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ purchase_form.employee.id_for_label }}" class="col-sm-3 control-label">{{ purchase_form.employee.label }}</label>
+
+                    <div class="col-sm-9">
+                        {{ purchase_form.employee|add_class:'form-control' }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <button type="submit" class="btn btn-primary">{% trans 'Purchase' %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <h3>{% trans 'Product Manufacturing' %}</h3>
+
+            <form class="form-horizontal" name="product-change-form">
+                <div class="form-group">
+                    <label for="{{ product_change_form.product.id_for_label }}" class="col-sm-2 control-label">{{ product_change_form.product.label }}</label>
+
+                    <div class="col-sm-10">
+                        {{ product_change_form.product|add_class:'form-control' }}
+                    </div>
+                </div>
+            </form>
+            <div id="product-content">
+                {% include 'partial/product.html' %}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <h3>{% trans 'Product Selling' %}</h3>
+
+            <form action="{% url 'factory:sale' %}" method="post" class="form-horizontal">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ sale_form.product.id_for_label }}" class="col-sm-3 control-label">{{ sale_form.product.label }}</label>
+
+                    <div class="col-sm-9">
+                        {{ sale_form.product|add_class:'form-control' }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ sale_form.quantity.id_for_label }}" class="col-sm-3 control-label">{{ sale_form.quantity.label }}</label>
+
+                    <div class="col-sm-9">
+                        {{ sale_form.quantity|add_class:'form-control' }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ sale_form.employee.id_for_label }}" class="col-sm-3 control-label">{{ sale_form.employee.label }}</label>
+
+                    <div class="col-sm-9">
+                        {{ sale_form.employee|add_class:'form-control' }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <button type="submit" class="btn btn-primary">{% trans 'Sell' %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    var url = '{% url 'factory:product' 0 %}';
+    $(document).ready(function () {
+        $('form[name="product-change-form"]').find('select[name="product"]').change(function () {
+            var val = $(this).val();
+            if (val === '') {
+                val = 0;
+            }
+            var actual_url = url.replace(0, val);
+            $.ajax(actual_url, {
+                success: function (response) {
+                    $('#product-content').html(response);
+                }
+            })
+        });
+    });
+</script>
+</body>
+</html>
