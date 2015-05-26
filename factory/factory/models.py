@@ -23,8 +23,8 @@ class Material(NamedModelMixin, MeasurableModelMixin, CountableModelMixin, Price
     @property
     def average_price(self):
         try:
-            average_price = (Purchase.objects.filter(material=self).aggregate(Sum('amount')).get('amount__sum', Decimal(0))) / \
-                            (Purchase.objects.filter(material=self).aggregate(Sum('quantity')).get('quantity__sum', Decimal(0)))
+            average_price = (Purchase.objects.filter(material=self).aggregate(Sum('amount')).get('amount__sum') or Decimal(0)) / \
+                            (Purchase.objects.filter(material=self).aggregate(Sum('quantity')).get('quantity__sum') or Decimal(0))
             return average_price.quantize(TWO_DECIMAL_PLACES)
         except InvalidOperation:
             return None
@@ -36,8 +36,8 @@ class Product(NamedModelMixin, MeasurableModelMixin, CountableModelMixin, Priced
     @property
     def average_price(self):
         try:
-            average_price = (Manufacture.objects.filter(product=self).aggregate(Sum('amount')).get('amount__sum', Decimal(0))) / \
-                            (Manufacture.objects.filter(product=self).aggregate(Sum('quantity')).get('quantity__sum', Decimal(0)))
+            average_price = (Manufacture.objects.filter(product=self).aggregate(Sum('amount')).get('amount__sum') or Decimal(0)) / \
+                            (Manufacture.objects.filter(product=self).aggregate(Sum('quantity')).get('quantity__sum') or Decimal(0))
             return average_price.quantize(TWO_DECIMAL_PLACES)
         except InvalidOperation:
             return None
@@ -80,8 +80,8 @@ class Transaction(DateTimeModelMixin, GenericForeignKeyModelMixin):
 
     @classonlymethod
     def get_balance(cls):
-        return (cls.objects.filter(transaction_type__type=INCOME).aggregate(Sum('amount')).get('amount__sum', Decimal(0))) - \
-               (cls.objects.filter(transaction_type__type=OUTCOME).aggregate(Sum('amount')).get('amount__sum', Decimal(0)))
+        return (cls.objects.filter(transaction_type__type=INCOME).aggregate(Sum('amount')).get('amount__sum') or Decimal(0)) - \
+               (cls.objects.filter(transaction_type__type=OUTCOME).aggregate(Sum('amount')).get('amount__sum') or Decimal(0))
 
 
 class Purchase(TradeDealModelMixin):
@@ -128,7 +128,7 @@ class Manufacture(TradeDealModelMixin):
     @property
     def average_price(self):
         try:
-            return self.amount / self.quantity
+            return (self.amount / self.quantity).quantize(TWO_DECIMAL_PLACES)
         except InvalidOperation:
             return None
 
@@ -141,7 +141,7 @@ class Manufacture(TradeDealModelMixin):
             manufacture_expense.quantity = component.quantity * self.quantity
             manufacture_expense.amount = manufacture_expense.quantity * component.material.average_price
             self.expenses.add(manufacture_expense)
-        self.amount = self.expenses.aggregate(Sum('amount')).get('amount__sum', Decimal(0))
+        self.amount = self.expenses.aggregate(Sum('amount')).get('amount__sum') or Decimal(0)
         self.save()
         self.product.quantity = F('quantity') + self.quantity
         self.product.save()
